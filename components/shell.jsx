@@ -20,7 +20,7 @@ function read() {
   }
 }
 export function LearningProvider({ children }) {
-  const [state, set] = useState(empty),
+  const [state, set] = useState(null),
     [notice, setNotice] = useState("");
   useEffect(() => {
     const sync = () => set(read());
@@ -47,7 +47,8 @@ export function LearningProvider({ children }) {
   return (
     <Context.Provider
       value={{
-        ...state,
+        ...(state ?? empty),
+        ready: state !== null,
         toggle,
         visit: (id) => update((v) => ({ ...v, last: id })),
       }}

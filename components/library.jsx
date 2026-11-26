@@ -2,12 +2,14 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Bookmark, Search, BookOpen, Check } from "lucide-react";
+import LoadingOverlay from "./loading-overlay";
 import { useLearning } from "./shell";
 export default function Library({ topics, savedOnly = false }) {
-  const { saved, done, toggle } = useLearning(),
+  const { saved, done, toggle, ready } = useLearning(),
     [q, setQ] = useState(""),
     [stage, setStage] = useState(""),
     [limit, setLimit] = useState(24);
+  const isLoadingFavorites = savedOnly && !ready;
   const matches = topics.filter(
     (l) =>
       (!savedOnly || saved.includes(l.id)) &&
@@ -51,7 +53,11 @@ export default function Library({ topics, savedOnly = false }) {
           ))}
         </select>
       </div>
-      <small>共 {matches.length} 个知识点</small>
+      {isLoadingFavorites ? (
+        <LoadingOverlay message="正在读取收藏…" />
+      ) : (
+        <small>共 {matches.length} 个知识点</small>
+      )}
       <div className="library-grid">
         {matches.slice(0, limit).map((l) => (
           <article key={l.id}>
@@ -80,7 +86,7 @@ export default function Library({ topics, savedOnly = false }) {
           </article>
         ))}
       </div>
-      {!matches.length && (
+      {!isLoadingFavorites && !matches.length && (
         <div className="empty">
           <BookOpen />
           <h3>
